@@ -1,5 +1,6 @@
 - name: Build an setup machine tokens env
   hosts: localhost
+  gather_facts: false
 
   tasks:
     - name: Build MIS app
