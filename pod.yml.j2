@@ -14,7 +14,7 @@ spec:
       args: 
         - /opt/keycloak/bin/kc.sh start-dev --import-realm
       ports:
-        - hostPort: 3000
+        - hostPort: {{ keycloak_host_port }}
           containerPort: 8080
       env:
         - name: KEYCLOAK_ADMIN
@@ -27,7 +27,7 @@ spec:
     - name: vault
       image: docker.io/hashicorp/vault:latest
       ports:
-        - hostPort: 8200
+        - hostPort: {{ vault_host_port }}
           containerPort: 8200
       env:
         - name: VAULT_DEV_ROOT_TOKEN_ID
@@ -48,9 +48,9 @@ spec:
         - --client_secret={{ client_secret }}
         - --username={{ username }}
         - --password={{ password }}
-        - --server_url=http://localhost:8080
+        - --server_url={{ server_url }}
       ports:
-        - hostPort: 8080
+        - hostPort: {{ mis_host_port }}
           containerPort: {{ mis_container_port }}
           
   volumes:

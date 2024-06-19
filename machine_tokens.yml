@@ -18,13 +18,17 @@
       vars:
         mis_image: "localhost/mis:latest"
         realm_import_dir: "{{ playbook_dir }}/realm"
-        mis_container_port: 8081
         client_id: vault
         client_secret: vault
         username: cosmin
         password: cosmin
+        server_url: http://localhost:8080
         vault_init_script: init_vault.sh
         vault_init_dir: "{{ playbook_dir }}"
+        keycloak_host_port: 4000
+        vault_host_port: 4200
+        mis_container_port: 8081
+        mis_host_port: 8080
 
     - name: Start pod
       containers.podman.podman_play:
