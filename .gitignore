@@ -1,2 +1,3 @@
 vms.yml
 pod.yml
+*.hcl
