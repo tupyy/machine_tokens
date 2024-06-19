@@ -1,7 +1,7 @@
 #!/bin/sh
 
-export VAULT_ADDR=http://127.0.0.1:4200
-export VAULT_TOKEN=root
+VAULT_ADDR=${VAULT_ADDR:-http://127.0.0.1:8200}
+VAULT_TOKEN=${VAULT_TOKEN:-root}
 
 # Setup jwt auth
 vault auth enable jwt
