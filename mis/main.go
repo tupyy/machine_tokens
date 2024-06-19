@@ -85,6 +85,7 @@ func main() {
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, err.Error())
 			return
 		}
 
@@ -94,15 +95,8 @@ func main() {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		jsonBody, err := json.Marshal(response)
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(jsonBody))
+		fmt.Fprintf(w, response.Jwt)
 		return
 	})
 

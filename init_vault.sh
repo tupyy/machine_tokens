@@ -1,7 +1,7 @@
 #!/bin/sh
 
-VAULT_ADDR=${VAULT_ADDR:-http://127.0.0.1:8200}
-VAULT_TOKEN=${VAULT_TOKEN:-root}
+export VAULT_ADDR=http://127.0.0.1:8200
+export VAULT_TOKEN=root
 
 # Setup jwt auth
 vault auth enable jwt
@@ -9,7 +9,7 @@ vault write auth/jwt/config \
     oidc_discovery_url="http://localhost:8080/realms/vault" \
     oidc_client_id="" \
     oidc_client_secret="" \
-    default_role=cosmin
+    default_role=awx
 
 
 # Creat the approle
@@ -36,7 +36,7 @@ path "auth/approle/role/awx/secret-id" {
 EOF
 vault policy write pull_secret_id pull_secret_id.hcl
 
-vault write auth/jwt/role/cosmin \
+vault write auth/jwt/role/awx \
     role_type="jwt" \
     bound_audiences="account" \
     allowed_redirect_uris="http://localhost:8200/ui/vault/auth/jwt/jwt/callback" \

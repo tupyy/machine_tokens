@@ -1,12 +1,51 @@
 - name: Build an setup machine tokens env
-  hosts: localhost
+  hosts: all
   gather_facts: false
+  vars:
+    dest_folder: /home/core
 
   tasks:
+    - name: Stop pod if running
+      containers.podman.podman_play:
+        kube_file: "{{ dest_folder }}/pod.yml"
+        state: absent
+      ignore_errors: true
+
+    - name: Copy Containerfile
+      ansible.builtin.copy:
+        src: Containerfile
+        dest: "{{ dest_folder }}/Containerfile"
+
+    - name: Create mis folder
+      ansible.builtin.file:
+        path: "{{ dest_folder }}/mis"
+        state: directory
+    
+    - name: Copy app
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/mis/"
+        dest: "{{ dest_folder }}/mis/"
+    
+    - name: Create realm folder
+      ansible.builtin.file:
+        path: "{{ dest_folder }}/realm"
+        state: directory
+    
+    - name: Copy realm
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/realm/"
+        dest: "{{ dest_folder }}/realm/"
+    
+    - name: Copy init vault file
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/init_vault.sh"
+        dest: "{{ dest_folder }}"
+        mode: 0755
+
     - name: Build MIS app
       containers.podman.podman_image:
         name: mis
-        path: "{{ playbook_dir }}"
+        path: "{{ dest_folder }}"
         force: true
         build:
           format: oci
@@ -14,17 +53,17 @@
     - name: Generate pod yml
       ansible.builtin.template:
         src: pod.yml.j2
-        dest: pod.yml
+        dest: "{{ dest_folder}}/pod.yml"
       vars:
         mis_image: "localhost/mis:latest"
-        realm_import_dir: "{{ playbook_dir }}/realm"
+        realm_import_dir: "{{ dest_folder }}/realm"
         client_id: vault
         client_secret: vault
-        username: cosmin
-        password: cosmin
+        username: awx
+        password: awx
         server_url: http://localhost:8080
         vault_init_script: init_vault.sh
-        vault_init_dir: "{{ playbook_dir }}"
+        vault_init_dir: "{{ dest_folder }}"
         keycloak_host_port: 4000
         vault_host_port: 4200
         mis_container_port: 8081
@@ -32,15 +71,14 @@
 
     - name: Start pod
       containers.podman.podman_play:
-        kube_file: pod.yml
+        kube_file: "{{ dest_folder }}/pod.yml"
         state: started
 
-    - name: Wait for Vault to initialize
+    - name: Wait 10s for Vault to initialize
       ansible.builtin.wait_for:
-        timeout: 5
+        timeout: 10
 
     - name: Init vault
       containers.podman.podman_container_exec:
         name: machine_tokens-vault
         command: "/bin/sh -c /init_vault.sh"
-        workdir: /
