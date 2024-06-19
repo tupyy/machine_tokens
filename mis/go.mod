@@ -1,3 +1,5 @@
 module mis
 
-go 1.22.2
+go 1.21
+
+require github.com/go-delve/delve v1.22.1 // indirect
