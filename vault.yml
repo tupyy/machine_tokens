@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  containers:
+    - name: keycloak
+      image: quay.io/keycloak/keycloak:latest
+      command:
+        - /bin/bash
+        - -c
+      args: 
+        - /opt/keycloak/bin/kc.sh start-dev --import-realm
+      ports:
+        - hostPort: 3000
+          containerPort: 8080
+      env:
+        - name: KEYCLOAK_ADMIN
+          value: admin
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: admin
+      volumeMounts:
+        - mountPath: /opt/keycloak/data/import
+          name: realm_import
+    - name: vault
+      image: docker.io/hashicorp/vault:latest
+      ports:
+        - hostPort: 8200
+          containerPort: 8200
+      env:
+        - name: VAULT_DEV_ROOT_TOKEN_ID
+          value: root
+      securityContext:
+        capabilities:
+          add: ["IPC_LOCK"]
+
+  volumes:
+    - name: realm_import
+      hostPath:
+        path: /home/cosmin/projects/ansible/barclays/realm
+        type: Directory
