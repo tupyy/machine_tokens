@@ -89,14 +89,9 @@ func main() {
 			return
 		}
 
-		response := MisResponse{
-			Role: "cosmin",
-			Jwt:  oidcResponse.AccessToken,
-		}
-
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, response.Jwt)
+		fmt.Fprintf(w, oidcResponse.AccessToken)
 		return
 	})
 
