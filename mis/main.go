@@ -39,18 +39,17 @@ func auth(serverUrl string, formData map[string]string) (OidcResponse, error) {
 		return OidcResponse{}, err
 	}
 	defer resp.Body.Close()
+
 	bodyData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return OidcResponse{}, fmt.Errorf("error reading response body %s", err)
+	}
 
 	if resp.StatusCode != 200 {
 		return OidcResponse{}, fmt.Errorf("oidc response status code %s: %s", resp.Status, string(bodyData))
 	}
 
 	oidcData := OidcResponse{}
-
-	if err != nil {
-		return OidcResponse{}, fmt.Errorf("error reading response body %s", err)
-	}
-
 	if err := json.Unmarshal(bodyData, &oidcData); err != nil {
 		return OidcResponse{}, fmt.Errorf("error unmarshaling the response body %s", err)
 	}
